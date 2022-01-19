@@ -25,5 +25,6 @@ module.exports = (on, config) => {
     owner: 'bahmutov',
     repo: 'cypress-set-github-status',
     commit: process.env.GITHUB_SHA,
+    token: process.env.GITHUB_TOKEN || process.env.PERSONAL_GH_TOKEN,
   })
 }

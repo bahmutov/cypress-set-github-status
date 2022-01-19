@@ -20,8 +20,6 @@ function registerPlugin(on, config, options = {}) {
     options.commit || config.env.testCommit || process.env.TEST_COMMIT
 
   if (testCommit && options.owner && options.repo) {
-    // const owner = 'bahmutov'
-    // const repo = 'todomvc-no-tests-vercel'
     const owner = options.owner
     const repo = options.repo
 
@@ -29,7 +27,7 @@ function registerPlugin(on, config, options = {}) {
     console.log('as a status check %s/%s commit %s', owner, repo, testCommit)
 
     const envOptions = {
-      token: process.env.GITHUB_TOKEN || process.env.PERSONAL_GH_TOKEN,
+      token: options.token,
     }
     const context = getContext()
 
