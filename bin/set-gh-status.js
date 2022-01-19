@@ -26,8 +26,10 @@ const args = arg({
 debug('args: %o', args)
 
 function checkEnvVariables(env) {
-  if (!env.GITHUB_TOKEN) {
-    console.error('Cannot find environment variable GITHUB_TOKEN')
+  if (!env.GITHUB_TOKEN && !env.PERSONAL_GH_TOKEN) {
+    console.error(
+      'Cannot find environment variable GITHUB_TOKEN or PERSONAL_GH_TOKEN',
+    )
     process.exit(1)
   }
 }
@@ -45,7 +47,7 @@ const options = {
   context: args['--context'] || 'Cypress tests',
 }
 const envOptions = {
-  token: process.env.GITHUB_TOKEN,
+  token: process.env.GITHUB_TOKEN || process.env.PERSONAL_GH_TOKEN,
 }
 
 setGitHubCommitStatus(options, envOptions).catch((e) => {

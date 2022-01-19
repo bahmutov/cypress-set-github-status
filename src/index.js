@@ -28,6 +28,9 @@ function registerPlugin(on, config, options = {}) {
     console.log('after finishing the test run will report the results')
     console.log('as a status check %s/%s commit %s', owner, repo, testCommit)
 
+    const envOptions = {
+      token: process.env.GITHUB_TOKEN || process.env.PERSONAL_GH_TOKEN,
+    }
     const context = getContext()
 
     on('before:run', async (runResults) => {
@@ -42,9 +45,7 @@ function registerPlugin(on, config, options = {}) {
         context,
         targetUrl: process.env.CIRCLE_BUILD_URL,
       }
-      const envOptions = {
-        token: process.env.GITHUB_TOKEN,
-      }
+
       await setGitHubCommitStatus(options, envOptions)
     })
 
@@ -57,9 +58,6 @@ function registerPlugin(on, config, options = {}) {
         description: `${runResults.totalTests} tests finished`,
         context,
         targetUrl: runResults.runUrl || process.env.CIRCLE_BUILD_URL,
-      }
-      const envOptions = {
-        token: process.env.GITHUB_TOKEN,
       }
       await setGitHubCommitStatus(options, envOptions)
     })

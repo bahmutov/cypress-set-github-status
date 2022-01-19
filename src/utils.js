@@ -13,25 +13,22 @@ async function setGitHubCommitStatus(options, envOptions) {
   debug('setting commit status: %o', options)
 
   if (!options.owner) {
-    console.error('--owner is required')
-    process.exit(1)
+    throw new Error('options.owner is required')
   }
   if (!options.repo) {
-    console.error('--repo is required')
-    process.exit(1)
+    throw new Error('options.repo is required')
   }
   if (!validStatuses.includes(options.status)) {
     console.error(
-      '--status was invalid "%s" must be one of: %o',
+      'options.status was invalid "%s" must be one of: %o',
       options.status,
       validStatuses,
     )
-    process.exit(1)
+    throw new Error('Invalid options.status')
   }
 
   if (!envOptions.token) {
-    console.error('envOptions.token is required')
-    process.exit(1)
+    throw new Error('envOptions.token is required')
   }
 
   // REST call to GitHub API
