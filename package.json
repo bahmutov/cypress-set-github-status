@@ -1,10 +1,11 @@
 {
   "name": "cypress-set-github-status",
-  "version": "1.0.0",
+  "version": "0.0.0-development",
   "description": "A little Cypress plugin for setting GitHub commit status",
   "main": "src/index.js",
   "scripts": {
-    "test": "cypress run"
+    "test": "cypress run",
+    "semantic-release": "semantic-release"
   },
   "files": [
     "bin",
@@ -15,7 +16,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/bahmutov/cypress-set-github-status.git"
+    "url": "https://github.com/bahmutov/cypress-set-github-status.git"
   },
   "keywords": [
     "cypress-plugin"
@@ -28,7 +29,8 @@
   "homepage": "https://github.com/bahmutov/cypress-set-github-status#readme",
   "devDependencies": {
     "cypress": "^9.3.1",
-    "prettier": "^2.5.1"
+    "prettier": "^2.5.1",
+    "semantic-release": "^19.0.2"
   },
   "dependencies": {
     "arg": "^5.0.1",
