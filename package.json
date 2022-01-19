@@ -1,0 +1,26 @@
+{
+  "name": "cypress-set-github-status",
+  "version": "1.0.0",
+  "description": "A little Cypress plugin for setting GitHub commit status",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bahmutov/cypress-set-github-status.git"
+  },
+  "keywords": [
+    "cypress-plugin"
+  ],
+  "author": "Gleb Bahmutov <gleb.bahmutov@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/bahmutov/cypress-set-github-status/issues"
+  },
+  "homepage": "https://github.com/bahmutov/cypress-set-github-status#readme",
+  "devDependencies": {
+    "cypress": "^9.3.1",
+    "prettier": "^2.5.1"
+  }
+}
