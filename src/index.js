@@ -1,75 +1,69 @@
-const got = require('got')
+// @ts-check
 const debug = require('debug')('cypress-set-github-status')
+const { setGitHubCommitStatus } = require('./utils')
 
-const validStatuses = ['pending', 'success', 'failure', 'error']
-
-async function setGitHubCommitStatus(options, envOptions) {
-  if (options.token) {
-    console.error('you have accidentally included the token in the options')
-    console.error('please use the second environment options object instead')
-    delete options.token
+function getContext() {
+  let context = 'Cypress tests'
+  if (process.env.CIRCLE_NODE_INDEX && process.env.CIRCLE_NODE_TOTAL) {
+    // index starts with 0
+    const machineIndex = Number(process.env.CIRCLE_NODE_INDEX) + 1
+    const totalMachines = Number(process.env.CIRCLE_NODE_TOTAL)
+    context += ` (machine ${machineIndex}/${totalMachines})`
   }
-
-  debug('setting commit status: %o', options)
-
-  if (!options.owner) {
-    console.error('--owner is required')
-    process.exit(1)
-  }
-  if (!options.repo) {
-    console.error('--repo is required')
-    process.exit(1)
-  }
-  if (!validStatuses.includes(options.status)) {
-    console.error(
-      '--status was invalid "%s" must be one of: %o',
-      options.status,
-      validStatuses,
-    )
-    process.exit(1)
-  }
-
-  if (!envOptions.token) {
-    console.error('envOptions.token is required')
-    process.exit(1)
-  }
-
-  // REST call to GitHub API
-  // https://docs.github.com/en/rest/reference/commits#commit-statuses
-  // https://help.github.com/en/actions/configuring-and-managing-workflows/authenticating-with-the-github_token#example-calling-the-rest-api
-  // a typical request would be like:
-  // curl --request POST \
-  // --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
-  // --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
-  // --header 'content-type: application/json' \
-  // --data '{
-  //     "state": "success",
-  //     "description": "REST commit status",
-  //     "context": "a test"
-  //   }'
-  const url = `https://api.github.com/repos/${options.owner}/${options.repo}/statuses/${options.commit}`
-  debug('url: %s', url)
-
-  // @ts-ignore
-  const res = await got.post(url, {
-    headers: {
-      authorization: `Bearer ${envOptions.token}`,
-    },
-    json: {
-      context: options.context,
-      state: options.status,
-      description: options.description,
-      target_url: options.targetUrl,
-    },
-  })
-  console.log(
-    'set commit %s status %s with %s %s',
-    options.commit,
-    options.status,
-    options.context,
-    options.description,
-  )
-  console.log('response status: %d %s', res.statusCode, res.statusMessage)
+  return context
 }
 
-module.exports = { setGitHubCommitStatus }
+function registerPlugin(on, config, options = {}) {
+  debug('options %o', options)
+
+  const testCommit =
+    options.commit || config.env.testCommit || process.env.TEST_COMMIT
+
+  if (testCommit && options.owner && options.repo) {
+    // const owner = 'bahmutov'
+    // const repo = 'todomvc-no-tests-vercel'
+    const owner = options.owner
+    const repo = options.repo
+
+    console.log('after finishing the test run will report the results')
+    console.log('as a status check %s/%s commit %s', owner, repo, testCommit)
+
+    const context = getContext()
+
+    on('before:run', async (runResults) => {
+      // put the target repo information into the options
+
+      const options = {
+        owner,
+        repo,
+        commit: testCommit,
+        status: 'pending',
+        description: 'Tests running',
+        context,
+        targetUrl: process.env.CIRCLE_BUILD_URL,
+      }
+      const envOptions = {
+        token: process.env.GITHUB_TOKEN,
+      }
+      await setGitHubCommitStatus(options, envOptions)
+    })
+
+    on('after:run', async (runResults) => {
+      const options = {
+        owner,
+        repo,
+        commit: testCommit,
+        status: runResults.totalFailed > 0 ? 'failure' : 'success',
+        description: `${runResults.totalTests} tests finished`,
+        context,
+        targetUrl: runResults.runUrl || process.env.CIRCLE_BUILD_URL,
+      }
+      const envOptions = {
+        token: process.env.GITHUB_TOKEN,
+      }
+      await setGitHubCommitStatus(options, envOptions)
+    })
+  }
+}
+
+module.exports = registerPlugin

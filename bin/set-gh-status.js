@@ -2,7 +2,7 @@
 
 const debug = require('debug')('cypress-set-github-status')
 const arg = require('arg')
-const { setGitHubCommitStatus } = require('../src/index')
+const { setGitHubCommitStatus } = require('../src/utils')
 
 const args = arg({
   '--owner': String,

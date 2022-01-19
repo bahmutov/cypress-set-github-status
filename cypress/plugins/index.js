@@ -20,5 +20,10 @@ module.exports = (on, config) => {
   // `on` is used to hook into various events Cypress emits
   // `config` is the resolved Cypress config
 
-  require('../../src')(on, config)
+  require('../../src')(on, config, {
+    // let's take this repo
+    owner: 'bahmutov',
+    repo: 'cypress-set-github-status',
+    commit: process.env.GITHUB_SHA,
+  })
 }
