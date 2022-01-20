@@ -21,6 +21,21 @@ function getContext() {
 function registerPlugin(on, config, options = {}) {
   debug('options %o', options)
 
+  const testPullRequest =
+    options.pull ||
+    config.env.pull ||
+    config.env.pullRequest ||
+    config.env.pullRequestNumber ||
+    process.env.TEST_PULL_REQUEST_NUMBER
+
+  if (testPullRequest) {
+    const testPullRequestNumber = Number(testPullRequest)
+    console.log(
+      'picking the tests to run based on PR number %d',
+      testPullRequestNumber,
+    )
+  }
+
   const testCommit =
     options.commit || config.env.testCommit || process.env.TEST_COMMIT
 
