@@ -1,4 +1,7 @@
 {
   "fixturesFolder": false,
-  "supportFile": false
+  "env": {
+    "grepFilterSpecs": true,
+    "grepOmitFiltered": true
+  }
 }
