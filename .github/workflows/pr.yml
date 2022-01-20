@@ -1,9 +1,14 @@
-name: ci
-on: push
+name: pr
+on: pull_request
 jobs:
   test:
     runs-on: ubuntu-20.04
     steps:
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
+
       - name: Checkout 🛎
         uses: actions/checkout@v2
 
