@@ -35,6 +35,10 @@ module.exports = (on, config) => {
 
 - [bahmutov/todomvc-tests-circleci](https://github.com/bahmutov/todomvc-tests-circleci)
 
+## Blog posts
+
+- [How to Keep Cypress Tests in Another Repo While Using CircleCI](https://glebbahmutov.com/blog/how-to-keep-cypress-tests-in-another-repo-with-circleci/)
+
 ## Small print
 
 Author: Gleb Bahmutov &copy; 2022
