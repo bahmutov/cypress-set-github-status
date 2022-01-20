@@ -8,6 +8,8 @@
 
 ```
 $ npm i -D cypress-set-github-status
+# or if using Yarn
+$ yarn add -D cypress-set-github-status
 ```
 
 ## Use
