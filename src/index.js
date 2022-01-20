@@ -1,6 +1,8 @@
+/// <reference types="cypress" />
 // @ts-check
 const debug = require('debug')('cypress-set-github-status')
 const { setGitHubCommitStatus } = require('./utils')
+const pluralize = require('pluralize')
 
 function getContext() {
   let context = 'Cypress tests'
@@ -13,6 +15,9 @@ function getContext() {
   return context
 }
 
+/**
+ * @param {Cypress.PluginEvents} on Function for registering event handlers
+ */
 function registerPlugin(on, config, options = {}) {
   debug('options %o', options)
 
@@ -48,14 +53,24 @@ function registerPlugin(on, config, options = {}) {
     })
 
     on('after:run', async (runResults) => {
+      const status = runResults.totalFailed > 0 ? 'failure' : 'success'
+      const description = `${pluralize(
+        'spec',
+        runResults.runs.length,
+        true,
+      )}: ${runResults.totalPassed} passed, ${runResults.totalFailed} failed, ${
+        runResults.totalPending + runResults.totalSkipped
+      } other tests`
+      const targetUrl = runResults.runUrl || process.env.CIRCLE_BUILD_URL
+
       const options = {
         owner,
         repo,
         commit: testCommit,
-        status: runResults.totalFailed > 0 ? 'failure' : 'success',
-        description: `${runResults.totalTests} tests finished`,
+        status,
+        description,
         context,
-        targetUrl: runResults.runUrl || process.env.CIRCLE_BUILD_URL,
+        targetUrl,
       }
       await setGitHubCommitStatus(options, envOptions)
     })
