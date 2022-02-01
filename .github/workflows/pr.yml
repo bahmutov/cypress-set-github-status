@@ -20,7 +20,7 @@ jobs:
 
       - name: Set common status 🎬
         run: |
-          npx set-gh-status --owner bahmutov --repo cypress-set-github-status \
+          node ./bin/set-gh-status --owner bahmutov --repo cypress-set-github-status \
             --sha $GITHUB_SHA --state pending --description "Running tests..." \
             --context "Cypress E2E tests"
         env:
