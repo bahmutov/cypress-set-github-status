@@ -12,10 +12,27 @@ jobs:
       - name: Checkout 🛎
         uses: actions/checkout@v2
 
+      - name: Install dependencies 📦
+        # https://github.com/cypress-io/github-action
+        uses: cypress-io/github-action@v2
+        with:
+          runTests: false
+
+      - name: Set common status 🎬
+        run: |
+          npx set-gh-status --owner bahmutov --repo cypress-set-github-status \
+            --sha $GITHUB_SHA --state pending --description "Running tests..." \
+            --context "Cypress E2E tests"
+        env:
+          # this token is not tied to any repository
+          # and can be used to set the commit status in the repos I have access to
+          PERSONAL_GH_TOKEN: ${{ secrets.PERSONAL_GH_TOKEN }}
+
       - name: Run tests 🧪
         # https://github.com/cypress-io/github-action
         uses: cypress-io/github-action@v2
         with:
+          install: false
           build: npx @bahmutov/print-env GITHUB
           env: 'pullRequest=${{ github.event.number }}'
         env:

@@ -48,14 +48,12 @@ async function getPullRequestBody(options, envOptions) {
   return json.body
 }
 
-async function setGitHubCommitStatus(options, envOptions) {
+function checkCommonOptions(options, envOptions) {
   if (options.token) {
     console.error('you have accidentally included the token in the options')
     console.error('please use the second environment options object instead')
     delete options.token
   }
-
-  debug('setting commit status: %o', options)
 
   validateCommonOptions(options, envOptions)
 
@@ -70,6 +68,12 @@ async function setGitHubCommitStatus(options, envOptions) {
     )
     throw new Error('Invalid options.status')
   }
+}
+
+async function setGitHubCommitStatus(options, envOptions) {
+  checkCommonOptions(options, envOptions)
+
+  debug('setting commit status: %o', options)
 
   // REST call to GitHub API
   // https://docs.github.com/en/rest/reference/commits#commit-statuses
@@ -104,7 +108,7 @@ async function setGitHubCommitStatus(options, envOptions) {
     options.commit,
     options.status,
     options.context,
-    options.description,
+    options.description ? options.description : '',
   )
   console.log('response status: %d %s', res.statusCode, res.statusMessage)
 }
@@ -136,11 +140,78 @@ function getTestsToRun(pullRequestBody) {
   return testsToRun
 }
 
-async function setCommonStatus(context, options, envOptions) {}
+async function setCommonStatus(context, options, envOptions) {
+  checkCommonOptions(options, envOptions)
+
+  debug('setting the common commit status: %s %o', context, options)
+
+  const url = `https://api.github.com/repos/${options.owner}/${options.repo}/commits/${options.commit}/status`
+  debug('url: %s', url)
+
+  // @ts-ignore
+  const res = await got.get(url, {
+    headers: {
+      authorization: `Bearer ${envOptions.token}`,
+    },
+  })
+  const statuses = JSON.parse(res.body).statuses || []
+  debug('commit statuses %o', statuses)
+  const existingStatus = statuses.find((status) => status.context === context)
+  if (!existingStatus) {
+    debug('there is no existing status: %s', context)
+    await setGitHubCommitStatus(
+      {
+        ...options,
+        context,
+      },
+      envOptions,
+    )
+  } else {
+    console.log(
+      'commit %s has "%s" current status %s, adding %s',
+      options.commit,
+      context,
+      existingStatus.state,
+      options.status,
+    )
+    if (existingStatus.state === options.status) {
+      debug('nothing to do, the status is the same')
+    } else if (
+      existingStatus.state === 'success' &&
+      options.status === 'failure'
+    ) {
+      debug('updating the common status to %s', options.status)
+      await setGitHubCommitStatus(
+        {
+          ...options,
+          context,
+        },
+        envOptions,
+      )
+    }
+  }
+}
 
 module.exports = {
   setGitHubCommitStatus,
   getPullRequestBody,
   getTestsToRun,
   setCommonStatus,
+}
+
+if (!module.parent) {
+  setCommonStatus(
+    'Cypress E2E tests',
+    {
+      owner: 'bahmutov',
+      repo: 'todomvc-no-tests-vercel',
+      commit: 'f9399541332866512e4adea333a6a3018629e8d4',
+      status: 'failure',
+    },
+    {
+      token: process.env.GITHUB_TOKEN || process.env.PERSONAL_GH_TOKEN,
+    },
+  ).catch((err) => {
+    console.error(err)
+  })
 }
