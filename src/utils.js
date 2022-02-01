@@ -136,4 +136,11 @@ function getTestsToRun(pullRequestBody) {
   return testsToRun
 }
 
-module.exports = { setGitHubCommitStatus, getPullRequestBody, getTestsToRun }
+async function setCommonStatus(context, options, envOptions) {}
+
+module.exports = {
+  setGitHubCommitStatus,
+  getPullRequestBody,
+  getTestsToRun,
+  setCommonStatus,
+}

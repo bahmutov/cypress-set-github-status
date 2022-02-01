@@ -1,7 +1,7 @@
 /// <reference types="cypress" />
 // @ts-check
 const debug = require('debug')('cypress-set-github-status')
-const { setGitHubCommitStatus } = require('./utils')
+const { setGitHubCommitStatus, setCommonStatus } = require('./utils')
 const pluralize = require('pluralize')
 
 function getContext() {
@@ -88,6 +88,13 @@ function registerPlugin(on, config, options = {}) {
         targetUrl,
       }
       await setGitHubCommitStatus(options, envOptions)
+
+      if (options.commonStatus) {
+        if (typeof options.commonStatus !== 'string') {
+          throw new Error(`Expected commonStatus to be a string`)
+        }
+        await setCommonStatus(options.commonStatus, options, envOptions)
+      }
     })
   }
 }
