@@ -1,3 +1,4 @@
+// @ts-check
 const got = require('got')
 const debug = require('debug')('cypress-set-github-status')
 
@@ -72,17 +73,6 @@ function getPullRequestNumber() {
   return parseInt(parts[2], 10)
 }
 
-async function getLastCommitFromPullRequest(options, envOptions) {
-  const pull = getPullRequestNumber()
-  if (!pull) {
-    return
-  }
-
-  options.pull = pull
-  const json = await getPullRequest(options, envOptions)
-  console.log(json)
-}
-
 function checkCommonOptions(options, envOptions) {
   if (options.token) {
     console.error('you have accidentally included the token in the options')
@@ -106,11 +96,7 @@ async function setGitHubCommitStatus(options, envOptions) {
   checkCommonOptions(options, envOptions)
 
   if (!options.commit) {
-    const commit = await getLastCommitFromPullRequest(options, envOptions)
-    if (!commit) {
-      throw new Error('options.commit is required')
-    }
-    options.commit = commit
+    throw new Error('options.commit is required')
   }
 
   debug('setting commit status: %o', options)
@@ -183,7 +169,7 @@ function getTestsToRun(pullRequestBody) {
 async function setCommonStatus(context, options, envOptions) {
   checkCommonOptions(options, envOptions)
 
-  debug('setting the common commit status: %s %o', context, options)
+  debug('setting the common commit status "%s" %o', context, options)
 
   const url = `https://api.github.com/repos/${options.owner}/${options.repo}/commits/${options.commit}/status`
   debug('url: %s', url)
@@ -242,6 +228,7 @@ module.exports = {
   getPullRequestNumber,
 }
 
+// @ts-ignore
 if (!module.parent) {
   setCommonStatus(
     'Cypress E2E tests',

@@ -29,6 +29,8 @@ module.exports = (on, config) => {
     repo: 'cypress-set-github-status',
     commit: process.env.COMMIT_SHA || process.env.GITHUB_SHA,
     token: process.env.GITHUB_TOKEN || process.env.PERSONAL_GH_TOKEN,
+    // when finished the test run, after reporting its machine status
+    // also set or update the common final status
     commonStatus: process.env.COMMON_STATUS || 'Cypress E2E tests',
   })
 
