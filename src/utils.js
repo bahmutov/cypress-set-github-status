@@ -15,18 +15,7 @@ function validateCommonOptions(options, envOptions) {
   }
 }
 
-// assume we do need to authenticate to fetch the pull request body
-async function getPullRequestBody(options, envOptions) {
-  if (options.token) {
-    console.error('you have accidentally included the token in the options')
-    console.error('please use the second environment options object instead')
-    delete options.token
-  }
-
-  debug('getting pull request body: %o', options)
-
-  validateCommonOptions(options, envOptions)
-
+async function getPullRequest(options, envOptions) {
   if (!options.pull) {
     throw new Error('options.pull number is required')
   }
@@ -45,7 +34,53 @@ async function getPullRequestBody(options, envOptions) {
   })
 
   const json = JSON.parse(res.body)
+  return json
+}
+
+// assume we do need to authenticate to fetch the pull request body
+async function getPullRequestBody(options, envOptions) {
+  if (options.token) {
+    console.error('you have accidentally included the token in the options')
+    console.error('please use the second environment options object instead')
+    delete options.token
+  }
+
+  debug('getting pull request body: %o', options)
+
+  validateCommonOptions(options, envOptions)
+
+  const json = await getPullRequest(options, envOptions)
   return json.body
+}
+
+/** Gets the pull request number (if any) from the GITHUB_* variables */
+function getPullRequestNumber() {
+  if (process.env.GITHUB_WORKFLOW !== 'pr') {
+    return
+  }
+  // something like "GITHUB_REF=refs/pull/5/merge"
+  const parts = process.env.GITHUB_REF.split('/')
+  if (parts.length !== 4) {
+    console.error(
+      'Do not know how to split GITHUB_REF: %s',
+      process.env.GITHUB_REF,
+    )
+    return
+  }
+
+  debug('parsing GITHUB_REF "%s" part "%s"', process.env.GITHUB_REF, parts[2])
+  return parseInt(parts[2], 10)
+}
+
+async function getLastCommitFromPullRequest(options, envOptions) {
+  const pull = getPullRequestNumber()
+  if (!pull) {
+    return
+  }
+
+  options.pull = pull
+  const json = await getPullRequest(options, envOptions)
+  console.log(json)
 }
 
 function checkCommonOptions(options, envOptions) {
@@ -57,9 +92,6 @@ function checkCommonOptions(options, envOptions) {
 
   validateCommonOptions(options, envOptions)
 
-  if (!options.commit) {
-    throw new Error('options.commit is required')
-  }
   if (!validStatuses.includes(options.status)) {
     console.error(
       'options.status was invalid "%s" must be one of: %o',
@@ -72,6 +104,14 @@ function checkCommonOptions(options, envOptions) {
 
 async function setGitHubCommitStatus(options, envOptions) {
   checkCommonOptions(options, envOptions)
+
+  if (!options.commit) {
+    const commit = await getLastCommitFromPullRequest(options, envOptions)
+    if (!commit) {
+      throw new Error('options.commit is required')
+    }
+    options.commit = commit
+  }
 
   debug('setting commit status: %o', options)
 
@@ -197,6 +237,7 @@ module.exports = {
   getPullRequestBody,
   getTestsToRun,
   setCommonStatus,
+  getPullRequestNumber,
 }
 
 if (!module.parent) {
