@@ -53,7 +53,9 @@ jobs:
           # and can be used to set the commit status in the repos I have access to
           PERSONAL_GH_TOKEN: ${{ secrets.PERSONAL_GH_TOKEN }}
           # point the plugin to update the commit status of the head commit
-          GITHUB_SHA: ${{ github.event.pull_request.head.sha }}
+          # TIP: we need to use an environment variable that does not start with GITHUB
+          # since those variables are set by the GitHub and can't be overridden
+          COMMIT_SHA: ${{ github.event.pull_request.head.sha }}
           # use the same context as the above step
           COMMON_STATUS: 'Cypress E2E tests'
           DEBUG: cypress-set-github-status

@@ -203,6 +203,7 @@ async function setCommonStatus(context, options, envOptions) {
       {
         ...options,
         context,
+        description: 'Test results',
       },
       envOptions,
     )
