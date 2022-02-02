@@ -22,12 +22,13 @@ jobs:
       - name: Set common status 🎬
         run: |
           node ./bin/set-gh-status --owner bahmutov --repo cypress-set-github-status \
-            --sha $GITHUB_REF --status pending \
+            --sha $GITHUB_SHA --status pending \
             --context "Cypress E2E tests" --description "Running tests..."
         env:
           # this token is not tied to any repository
           # and can be used to set the commit status in the repos I have access to
           PERSONAL_GH_TOKEN: ${{ secrets.PERSONAL_GH_TOKEN }}
+          DEBUG: cypress-set-github-status
 
       - name: Run tests 🧪
         # https://github.com/cypress-io/github-action

@@ -100,6 +100,7 @@ async function setGitHubCommitStatus(options, envOptions) {
   }
 
   debug('setting commit status: %o', options)
+  console.log('setting commit %s status to %s', options.commit, options.status)
 
   // REST call to GitHub API
   // https://docs.github.com/en/rest/reference/commits#commit-statuses
