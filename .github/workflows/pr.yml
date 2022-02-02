@@ -4,6 +4,9 @@ jobs:
   test:
     runs-on: ubuntu-20.04
     steps:
+      - name: Print GITHUB variables 🖨
+        run: npx @bahmutov/print-env GITHUB
+
       - name: Dump GitHub context
         env:
           GITHUB_CONTEXT: ${{ toJson(github) }}
@@ -46,7 +49,6 @@ jobs:
         uses: cypress-io/github-action@v2
         with:
           install: false
-          build: npx @bahmutov/print-env GITHUB
           env: 'pullRequest=${{ github.event.number }}'
         env:
           # this token is not tied to any repository
