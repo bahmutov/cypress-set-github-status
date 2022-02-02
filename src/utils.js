@@ -197,7 +197,7 @@ async function setCommonStatus(context, options, envOptions) {
   const statuses = JSON.parse(res.body).statuses || []
   debug('commit statuses %o', statuses)
   const existingStatus = statuses.find((status) => status.context === context)
-  if (!existingStatus) {
+  if (!existingStatus || existingStatus.state === 'pending') {
     debug('there is no existing status: %s', context)
     await setGitHubCommitStatus(
       {
@@ -226,6 +226,7 @@ async function setCommonStatus(context, options, envOptions) {
         {
           ...options,
           context,
+          description: 'Test results',
         },
         envOptions,
       )
