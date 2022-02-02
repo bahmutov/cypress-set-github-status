@@ -27,8 +27,9 @@ module.exports = (on, config) => {
     // let's take this repo
     owner: 'bahmutov',
     repo: 'cypress-set-github-status',
-    commit: process.env.GITHUB_SHA,
+    commit: process.env.COMMIT_SHA || process.env.GITHUB_SHA,
     token: process.env.GITHUB_TOKEN || process.env.PERSONAL_GH_TOKEN,
+    commonStatus: process.env.COMMON_STATUS || 'Cypress E2E tests',
   })
 
   // https://github.com/bahmutov/cypress-grep

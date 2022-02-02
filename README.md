@@ -39,7 +39,56 @@ module.exports = (on, config) => {
 
 ### set-gh-status
 
+See [bin/set-gh-status.js](./bin/set-gh-status.js) file. Typical use case
+
+```
+$ npx set-gh-status --owner <repo owner> \
+  --repo <repo name> --commit <sha> \
+  --status pending|success|failure|error \
+  --context "short unique context" \
+  --description "status description" \
+  --target-url "optional URL to link to the status check"
+```
+
 ### get-pr-body
+
+## commonStatus
+
+If you have multiple parallel test runners, it might be necessary to create a single "common" status check with some constant context text to functions as the branch's required status. In this case, before starting the parallel test jobs set the status check using the bin `set-gh-status` script.
+
+```
+$ npx set-gh-status --owner <repo owner> --repo <repo name> \
+  --commit ${{ github.event.pull_request.head.sha }} \
+  --status pending \
+  --context "Cypress E2E tests" \
+  --description "tests about to start"
+```
+
+In the plugins file, add the field `commonStatus` to the options object. Use the same value as the `--context` argument.
+
+```js
+require('cypress-set-github-status')(on, config, {
+  owner: 'owner name',
+  repo: 'repo name',
+  commit: process.env.COMMIT_SHA || process.env.GITHUB_SHA,
+  token: process.env.GITHUB_TOKEN || process.env.PERSONAL_GH_TOKEN,
+  // make sure to use the same common status as "--context" parameter
+  commonStatus: 'Cypress E2E tests',
+})
+```
+
+When running pass the head commit SHA via an environment variable
+
+```
+# point the plugin to update the commit status of the head commit
+# TIP: we need to use an environment variable that does not start with GITHUB
+# since those variables are set by the GitHub and can't be overridden
+COMMIT_SHA: ${{ github.event.pull_request.head.sha }}
+# use the same context as the above step
+COMMON_STATUS: 'Cypress E2E tests'
+```
+
+Every machine that finishes will update the common status. If the status is pending / successful, and the new status is successful, it will remain successful. If the new status is failed, the status will change to failed and will remain failed.
 
 ## Blog posts
 
