@@ -29,7 +29,7 @@ module.exports = (on, config) => {
     repo: 'cypress-set-github-status',
     commit: process.env.GITHUB_SHA,
     token: process.env.GITHUB_TOKEN || process.env.PERSONAL_GH_TOKEN,
-    commonStatus: 'Cypress E2E tests',
+    commonStatus: process.env.COMMON_STATUS || 'Cypress E2E tests',
   })
 
   // https://github.com/bahmutov/cypress-grep
