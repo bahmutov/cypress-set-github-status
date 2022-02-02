@@ -78,7 +78,7 @@ function registerPlugin(on, config, options = {}) {
       } other tests`
       const targetUrl = runResults.runUrl || process.env.CIRCLE_BUILD_URL
 
-      const options = {
+      const commitOption = {
         owner,
         repo,
         commit: testCommit,
@@ -87,13 +87,13 @@ function registerPlugin(on, config, options = {}) {
         context,
         targetUrl,
       }
-      await setGitHubCommitStatus(options, envOptions)
+      await setGitHubCommitStatus(commitOption, envOptions)
 
       if (options.commonStatus) {
         if (typeof options.commonStatus !== 'string') {
           throw new Error(`Expected commonStatus to be a string`)
         }
-        await setCommonStatus(options.commonStatus, options, envOptions)
+        await setCommonStatus(options.commonStatus, commitOption, envOptions)
       }
     })
   }
