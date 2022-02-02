@@ -34,7 +34,7 @@ jobs:
       - name: Set common status 🎬
         run: |
           node ./bin/set-gh-status --owner bahmutov --repo cypress-set-github-status \
-            --sha ${{ github.event.pull_request.head.sha }}" --status pending \
+            --sha ${{ github.event.pull_request.head.sha }} --status pending \
             --context "Cypress E2E tests" --description "Running tests..."
         env:
           # this token is not tied to any repository
