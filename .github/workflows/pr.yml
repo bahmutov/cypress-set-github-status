@@ -14,8 +14,13 @@ jobs:
           GITHUB_EVENT: ${{ toJson(github.event) }}
         run: echo "$GITHUB_EVENT"
 
+      - name: Dump GitHub event pull request
+        env:
+          GITHUB_PR: ${{ toJson(github.event.pull_request) }}
+        run: echo "$GITHUB_PR"
+
       - name: Print commit SHA
-        run: echo "Commit SHA is ${{ github.event.head.sha }}"
+        run: echo "Commit SHA is ${{ github.event.pull_request.head.sha }}"
 
       - name: Checkout 🛎
         uses: actions/checkout@v2
