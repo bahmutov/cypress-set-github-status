@@ -9,6 +9,11 @@ jobs:
           GITHUB_CONTEXT: ${{ toJson(github) }}
         run: echo "$GITHUB_CONTEXT"
 
+      - name: Dump GitHub event
+        env:
+          GITHUB_EVENT: ${{ toJson(github.event) }}
+        run: echo "$GITHUB_EVENT"
+
       - name: Print commit SHA
         run: echo "Commit SHA is ${{ github.event.head.sha }}"
 
