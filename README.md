@@ -96,6 +96,12 @@ Every machine that finishes will update the common status. If the status is pend
 
 - [How to Keep Cypress Tests in Another Repo While Using CircleCI](https://glebbahmutov.com/blog/how-to-keep-cypress-tests-in-another-repo-with-circleci/)
 
+## Upgrade
+
+### v1 to v2
+
+- if you ever used the script `get-pr-body`, now use the script `get-gh-pr-body`
+
 ## Small print
 
 Author: Gleb Bahmutov &copy; 2022
