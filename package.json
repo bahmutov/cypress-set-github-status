@@ -13,7 +13,7 @@
   ],
   "bin": {
     "set-gh-status": "./bin/set-gh-status.js",
-    "get-pr-body": "./bin/get-pr-body.js"
+    "get-gh-pr-body": "./bin/get-gh-pr-body.js"
   },
   "repository": {
     "type": "git",

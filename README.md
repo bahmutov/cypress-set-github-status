@@ -50,7 +50,9 @@ $ npx set-gh-status --owner <repo owner> \
   --target-url "optional URL to link to the status check"
 ```
 
-### get-pr-body
+### get-gh-pr-body
+
+TODO: document this script
 
 ## commonStatus
 
