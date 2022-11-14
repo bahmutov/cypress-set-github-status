@@ -16,6 +16,38 @@ $ yarn add -D cypress-set-github-status
 
 Register this plugin in your plugin file. Pick the GitHub owner and repo to send the status checks to. To pass the commit SHA you can use either an environment variable `TEST_COMMIT` or pass it via Cypress `--env testCommit=...` argument. For access, use [GitHub personal token](https://github.com/settings/tokens).
 
+### Cypress v10+
+
+Import this plugin from the config file
+
+```js
+// cypress.config.js
+const { defineConfig } = require('cypress')
+
+module.exports = defineConfig({
+  e2e: {
+    setupNodeEvents(on, config) {
+      const commit = process.env.COMMIT_SHA || process.env.GITHUB_SHA
+      const token = process.env.GITHUB_TOKEN || process.env.PERSONAL_GH_TOKEN
+      const commonStatus = process.env.COMMON_STATUS || 'Cypress E2E tests'
+      require('cypress-set-github-status')(on, config, {
+        owner: '...',
+        repo: '...',
+        commit,
+        token,
+        // when finished the test run, after reporting its machine status
+        // also set or update the common final status
+        commonStatus,
+      })
+    },
+  },
+})
+```
+
+### Cypress v9
+
+If you are using an older version of Cypress, import this plugin from your plugins file
+
 ```js
 // cypress/plugins/index.js
 module.exports = (on, config) => {
