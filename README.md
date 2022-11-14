@@ -122,7 +122,19 @@ COMMIT_SHA: ${{ github.event.pull_request.head.sha }}
 COMMON_STATUS: 'Cypress E2E tests'
 ```
 
-Every machine that finishes will update the common status. If the status is pending / successful, and the new status is successful, it will remain successful. If the new status is failed, the status will change to failed and will remain failed.
+### Common status update rule
+
+Every machine that finishes will update the common status. If the status is pending / successful, and the new status is successful, it will remain successful. If the new status is failed, the status will change to failed and will remain failed. This prevents the following situation from "forgetting" the failed test: imagine you have a parallel test job with 4 machines.
+
+- the first machine succeeds, so it sets status to passing
+- the second machine fails, so it sets the status to failing
+- the third machine succeeds, so it … sets the status to passing, overwriting the failed status, in effect “forgetting” it.
+
+The problem with these status checks is that it is hard to figure out if this is the same testing job with several machines in parallel or a re-run when the test status checks should be “reset”. **Tip:** you can reset the common status check before re-running the tests by using the `npx set-gh-status ... --status pending` command.
+
+## Debugging
+
+This plugin uses [debug](https://github.com/debug-js/debug#readme) module to output verbose logs. You can turn the logs on by running Cypress with `DEBUG=cypress-set-github-status` environment variable.
 
 ## Blog posts
 
