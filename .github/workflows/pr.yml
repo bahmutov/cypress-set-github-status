@@ -34,7 +34,7 @@ jobs:
         with:
           runTests: false
 
-      - name: Set common status 🎬
+      - name: Set the common status 🎬
         run: |
           node ./bin/set-gh-status --owner bahmutov --repo cypress-set-github-status \
             --sha ${{ github.event.pull_request.head.sha }} --status pending \

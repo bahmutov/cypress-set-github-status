@@ -195,6 +195,7 @@ async function setCommonStatus(context, options, envOptions) {
       envOptions,
     )
   } else {
+    // changing an existing common status
     console.log(
       'commit %s has "%s" current status %s, adding %s',
       options.commit,
@@ -202,6 +203,7 @@ async function setCommonStatus(context, options, envOptions) {
       existingStatus.state,
       options.status,
     )
+    // see the "Common status update rule" section in the README file
     if (existingStatus.state === options.status) {
       debug('nothing to do, the status is the same')
     } else if (
