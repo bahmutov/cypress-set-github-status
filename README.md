@@ -82,6 +82,12 @@ $ npx set-gh-status --owner <repo owner> \
   --target-url "optional URL to link to the status check"
 ```
 
+**Tip:** you can specify the package name when calling `npx set-gh-status` to avoid using a wrong package:
+
+```
+$ npx --package cypress-set-github-status set-gh-status ...
+```
+
 ### get-gh-pr-body
 
 TODO: document this script
