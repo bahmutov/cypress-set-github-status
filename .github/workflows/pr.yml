@@ -63,6 +63,7 @@ jobs:
           DEBUG: cypress-set-github-status
 
       - name: Semantic Release 🚀
+        if: github.ref == 'refs/heads/main'
         uses: cycjimmy/semantic-release-action@v3
         with:
           branch: main
