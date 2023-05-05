@@ -57,8 +57,14 @@ async function getPullRequestBody(options, envOptions) {
 /** Gets the pull request number (if any) from the GITHUB_* variables */
 function getPullRequestNumber() {
   if (process.env.GITHUB_WORKFLOW !== 'pr') {
+    debug('GH workflow is not PR')
     return
   }
+  if (!process.env.GITHUB_REF) {
+    debug('process.env.GITHUB_REF is not set')
+    return
+  }
+
   // something like "GITHUB_REF=refs/pull/5/merge"
   const parts = process.env.GITHUB_REF.split('/')
   if (parts.length !== 4) {
@@ -92,6 +98,9 @@ function checkCommonOptions(options, envOptions) {
   }
 }
 
+/**
+ * Sets GitHub commit status. Handles any GH errors and prints them to STDERR.
+ */
 async function setGitHubCommitStatus(options, envOptions) {
   checkCommonOptions(options, envOptions)
 
@@ -118,26 +127,34 @@ async function setGitHubCommitStatus(options, envOptions) {
   const url = `https://api.github.com/repos/${options.owner}/${options.repo}/statuses/${options.commit}`
   debug('url: %s', url)
 
-  // @ts-ignore
-  const res = await got.post(url, {
-    headers: {
-      authorization: `Bearer ${envOptions.token}`,
-    },
-    json: {
-      context: options.context,
-      state: options.status,
-      description: options.description,
-      target_url: options.targetUrl,
-    },
-  })
-  console.log(
-    'set commit %s status %s with %s %s',
-    options.commit,
-    options.status,
-    options.context,
-    options.description ? options.description : '',
-  )
-  console.log('response status: %d %s', res.statusCode, res.statusMessage)
+  const json = {
+    context: options.context,
+    state: options.status,
+    description: options.description,
+    target_url: options.targetUrl,
+  }
+  try {
+    // @ts-ignore
+    const res = await got.post(url, {
+      headers: {
+        authorization: `Bearer ${envOptions.token}`,
+      },
+      json,
+    })
+    console.log(
+      'set commit %s status %s with %s %s',
+      options.commit,
+      options.status,
+      options.context,
+      options.description ? options.description : '',
+    )
+    console.log('response status: %d %s', res.statusCode, res.statusMessage)
+  } catch (err) {
+    console.error('⚠️ Problem setting GitHub status')
+    console.error('POST %s', url)
+    console.error('%o', json)
+    console.error(err)
+  }
 }
 
 function isLineChecked(line) {
@@ -167,6 +184,9 @@ function getTestsToRun(pullRequestBody) {
   return testsToRun
 }
 
+/**
+ * Handles any GH errors by printing them to STDERR
+ */
 async function setCommonStatus(context, options, envOptions) {
   checkCommonOptions(options, envOptions)
 
@@ -175,42 +195,18 @@ async function setCommonStatus(context, options, envOptions) {
   const url = `https://api.github.com/repos/${options.owner}/${options.repo}/commits/${options.commit}/status`
   debug('url: %s', url)
 
-  // @ts-ignore
-  const res = await got.get(url, {
-    headers: {
-      authorization: `Bearer ${envOptions.token}`,
-    },
-  })
-  const statuses = JSON.parse(res.body).statuses || []
-  debug('commit statuses %o', statuses)
-  const existingStatus = statuses.find((status) => status.context === context)
-  if (!existingStatus || existingStatus.state === 'pending') {
-    debug('there is no existing status: %s', context)
-    await setGitHubCommitStatus(
-      {
-        ...options,
-        context,
-        description: 'Test results',
+  try {
+    // @ts-ignore
+    const res = await got.get(url, {
+      headers: {
+        authorization: `Bearer ${envOptions.token}`,
       },
-      envOptions,
-    )
-  } else {
-    // changing an existing common status
-    console.log(
-      'commit %s has "%s" current status %s, adding %s',
-      options.commit,
-      context,
-      existingStatus.state,
-      options.status,
-    )
-    // see the "Common status update rule" section in the README file
-    if (existingStatus.state === options.status) {
-      debug('nothing to do, the status is the same')
-    } else if (
-      existingStatus.state === 'success' &&
-      options.status === 'failure'
-    ) {
-      debug('updating the common status to %s', options.status)
+    })
+    const statuses = JSON.parse(res.body).statuses || []
+    debug('commit statuses %o', statuses)
+    const existingStatus = statuses.find((status) => status.context === context)
+    if (!existingStatus || existingStatus.state === 'pending') {
+      debug('there is no existing status: %s', context)
       await setGitHubCommitStatus(
         {
           ...options,
@@ -219,7 +215,36 @@ async function setCommonStatus(context, options, envOptions) {
         },
         envOptions,
       )
+    } else {
+      // changing an existing common status
+      console.log(
+        'commit %s has "%s" current status %s, adding %s',
+        options.commit,
+        context,
+        existingStatus.state,
+        options.status,
+      )
+      // see the "Common status update rule" section in the README file
+      if (existingStatus.state === options.status) {
+        debug('nothing to do, the status is the same')
+      } else if (
+        existingStatus.state === 'success' &&
+        options.status === 'failure'
+      ) {
+        debug('updating the common status to %s', options.status)
+        await setGitHubCommitStatus(
+          {
+            ...options,
+            context,
+            description: 'Test results',
+          },
+          envOptions,
+        )
+      }
     }
+  } catch (err) {
+    console.error('⚠️ Could not set common GitHub status')
+    console.error(err)
   }
 }
 
