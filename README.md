@@ -88,6 +88,8 @@ $ npx set-gh-status --owner <repo owner> \
 $ npx --package cypress-set-github-status set-gh-status ...
 ```
 
+**Tip:** you can pass both the owner and the repo in a single parameter `--repo <owner>/<repo name>`
+
 ### get-gh-pr-body
 
 TODO: document this script
