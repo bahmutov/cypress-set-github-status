@@ -153,6 +153,7 @@ This plugin uses [debug](https://github.com/debug-js/debug#readme) module to out
 ## Blog posts
 
 - [How to Keep Cypress Tests in Another Repo While Using CircleCI](https://glebbahmutov.com/blog/how-to-keep-cypress-tests-in-another-repo-with-circleci/)
+- [Separate Application And Tests Repos GitHub Actions Setup](https://glebbahmutov.com/blog/two-repo-github-actions-setup/)
 
 ## Upgrade
 
