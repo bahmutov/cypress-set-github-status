@@ -102,6 +102,13 @@ function checkCommonOptions(options, envOptions) {
  * Sets GitHub commit status. Handles any GH errors and prints them to STDERR.
  */
 async function setGitHubCommitStatus(options, envOptions) {
+  if (options.repo && !options.owner && options.repo.includes('/')) {
+    debug('splitting repo "%s" into owner and repo', options.repo)
+    const [owner, repo] = options.repo.split('/')
+    options.owner = owner
+    options.repo = repo
+  }
+
   checkCommonOptions(options, envOptions)
 
   if (!options.commit) {
