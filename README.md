@@ -90,6 +90,12 @@ $ npx --package cypress-set-github-status set-gh-status ...
 
 **Tip:** you can pass both the owner and the repo in a single parameter `--repo <owner>/<repo name>`
 
+**Tip 2:** you can set the commit status by specifying the GitHub Actions job outcome. The outcome will be remapped to the status like this: success is success, failure is failure, canceled or skipped are error. In this case, do not specify the `--status` parameter
+
+```
+$ npx set-gh-status ... --outcome ${{ steps.tests.outcome }} ...
+```
+
 ### get-gh-pr-body
 
 TODO: document this script
