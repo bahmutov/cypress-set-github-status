@@ -12,6 +12,8 @@ const args = arg({
   // commit status fields
   // https://docs.github.com/en/rest/reference/commits#commit-statuses
   '--status': String,
+  // alternative: set the commit status based on GH job outcome
+  '--outcome': String,
   '--description': String,
   '--target-url': String,
   '--context': String,
@@ -36,12 +38,32 @@ function checkEnvVariables(env) {
 
 checkEnvVariables(process.env)
 
+function getCommitStatus(status, jobOutcome) {
+  debug('commit status from status %s or outcome %s', status, jobOutcome)
+  if (status) {
+    return status
+  }
+  const outcomeToStatus = {
+    success: 'success',
+    failure: 'failure',
+    canceled: 'error',
+    skipped: 'error',
+  }
+  const pickedStatus = outcomeToStatus[jobOutcome] || 'error'
+  debug('picked status %s', pickedStatus)
+
+  return pickedStatus
+}
+
 const options = {
   owner: args['--owner'],
   repo: args['--repo'],
   commit: args['--commit'],
+
   // status fields
-  status: args['--status'],
+  // alternative: set the commit status based on GitHub job outcome
+  status: getCommitStatus(args['--status'], args['--outcome']),
+
   description: args['--description'] || 'Tests finished',
   targetUrl: args['--target-url'],
   context: args['--context'] || 'Cypress tests',
