@@ -5,7 +5,7 @@ const { setGitHubCommitStatus, setCommonStatus } = require('./utils')
 const pluralize = require('pluralize')
 
 function getContext() {
-  let context = 'Cypress tests'
+  let context = process.env.COMMIT_CONTEXT || 'Cypress tests'
   if (process.env.CIRCLE_NODE_INDEX && process.env.CIRCLE_NODE_TOTAL) {
     // index starts with 0
     const machineIndex = Number(process.env.CIRCLE_NODE_INDEX) + 1
