@@ -146,11 +146,19 @@ Every machine that finishes will update the common status. If the status is pend
 
 The problem with these status checks is that it is hard to figure out if this is the same testing job with several machines in parallel or a re-run when the test status checks should be “reset”. **Tip:** you can reset the common status check before re-running the tests by using the `npx set-gh-status ... --status pending` command.
 
+### Custom context name
+
+By default, the commit status uses context "Cypress tests". You can pass your own commit context via environment variables
+
+```text
+COMMIT_CONTEXT="Sanity E2E tests" ...
+```
+
 ### Machine index
 
 You can add the machine index (starts with zero) and the total number of machines to the context message
 
-```js
+```text
 MACHINES_INDEX=1 MACHINES_TOTAL=5 ...
 ```
 
