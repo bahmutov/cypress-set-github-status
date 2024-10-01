@@ -146,6 +146,14 @@ Every machine that finishes will update the common status. If the status is pend
 
 The problem with these status checks is that it is hard to figure out if this is the same testing job with several machines in parallel or a re-run when the test status checks should be “reset”. **Tip:** you can reset the common status check before re-running the tests by using the `npx set-gh-status ... --status pending` command.
 
+### Machine index
+
+You can add the machine index (starts with zero) and the total number of machines to the context message
+
+```js
+MACHINES_INDEX=1 MACHINES_TOTAL=5 ...
+```
+
 ## Debugging
 
 This plugin uses [debug](https://github.com/debug-js/debug#readme) module to output verbose logs. You can turn the logs on by running Cypress with `DEBUG=cypress-set-github-status` environment variable.

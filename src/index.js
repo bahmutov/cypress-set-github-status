@@ -11,7 +11,17 @@ function getContext() {
     const machineIndex = Number(process.env.CIRCLE_NODE_INDEX) + 1
     const totalMachines = Number(process.env.CIRCLE_NODE_TOTAL)
     context += ` (machine ${machineIndex}/${totalMachines})`
+  } else if (
+    'MACHINES_TOTAL' in process.env &&
+    'MACHINES_INDEX' in process.env
+  ) {
+    debug('getting the index and total from MACHINES_INDEX and MACHINES_TOTAL')
+    // index starts with zero
+    const machineIndex = Number(process.env.MACHINES_INDEX) + 1
+    const totalMachines = Number(process.env.MACHINES_TOTAL)
+    context += ` (machine ${machineIndex}/${totalMachines})`
   }
+
   return context
 }
 
@@ -50,11 +60,12 @@ function registerPlugin(on, config, options = {}) {
       token: options.token,
     }
     const context = getContext()
+    debug('context "%s"', context)
 
     on('before:run', async (runResults) => {
       // put the target repo information into the options
 
-      const options = {
+      const ghOptions = {
         owner,
         repo,
         commit: testCommit,
@@ -64,7 +75,7 @@ function registerPlugin(on, config, options = {}) {
         targetUrl: process.env.CIRCLE_BUILD_URL,
       }
 
-      await setGitHubCommitStatus(options, envOptions)
+      await setGitHubCommitStatus(ghOptions, envOptions)
     })
 
     on('after:run', async (runResults) => {
