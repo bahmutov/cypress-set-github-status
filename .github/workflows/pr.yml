@@ -26,11 +26,11 @@ jobs:
         run: echo "Commit SHA is ${{ github.event.pull_request.head.sha }}"
 
       - name: Checkout 🛎
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install dependencies 📦
         # https://github.com/cypress-io/github-action
-        uses: cypress-io/github-action@v5
+        uses: cypress-io/github-action@v6
         with:
           runTests: false
 
@@ -46,7 +46,7 @@ jobs:
 
       - name: Run tests 🧪
         # https://github.com/cypress-io/github-action
-        uses: cypress-io/github-action@v5
+        uses: cypress-io/github-action@v6
         with:
           install: false
           env: 'pullRequest=${{ github.event.number }}'
@@ -60,11 +60,14 @@ jobs:
           COMMIT_SHA: ${{ github.event.pull_request.head.sha }}
           # use the same context as the above step
           COMMON_STATUS: 'Cypress E2E tests'
+          # pretend this is the third machine our of 5
+          MACHINES_INDEX: 2
+          MACHINES_TOTAL: 5
           DEBUG: cypress-set-github-status
 
       - name: Semantic Release 🚀
         if: github.ref == 'refs/heads/main'
-        uses: cycjimmy/semantic-release-action@v3
+        uses: cycjimmy/semantic-release-action@v4
         with:
           branch: main
         env:
