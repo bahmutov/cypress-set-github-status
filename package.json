@@ -30,7 +30,7 @@
   "homepage": "https://github.com/bahmutov/cypress-set-github-status#readme",
   "devDependencies": {
     "cypress": "^13.0.0",
-    "cypress-grep": "^2.13.1",
+    "cypress-grep": "^3.0.0",
     "prettier": "^3.0.0",
     "semantic-release": "^21.0.2"
   },
