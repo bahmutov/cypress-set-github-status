@@ -188,9 +188,11 @@ function getTestsToRun(pullRequestBody) {
       testsToRun.all = true
     }
     if (line.includes('@sanity') && isLineChecked(line)) {
+      // @ts-ignore
       testsToRun.tags.push('@sanity')
     }
     if (line.includes('@user') && isLineChecked(line)) {
+      // @ts-ignore
       testsToRun.tags.push('@user')
     }
   })
