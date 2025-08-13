@@ -14,6 +14,7 @@ jobs:
       - name: Print inputs 🖨️
         run: |
           echo off
+          echo '${{ toJson(github.event) }}'
           echo 'repoName ${{ toJson(github.event.client_payload.repoName) }}'
           echo 'pullRequestNumber ${{ toJson(github.event.client_payload.pullRequestNumber) }}'
           echo 'commentId ${{ toJson(github.event.client_payload.commentId) }}'
