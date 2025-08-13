@@ -1,0 +1,27 @@
+name: Slash Command Dispatch
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  slash_command_dispatch:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Print inputs 🖨️
+        run: |
+          echo off
+          echo 'issue/PR number ${{ toJson(github.event.issue.number) }}'
+
+      - name: Slash Command Dispatch
+        # https://github.com/peter-evans/slash-command-dispatch
+        uses: peter-evans/slash-command-dispatch@13bc09769d122a64f75aa5037256f6f2d78be8c4 # v4.0.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          permission: none
+          commands: |
+            cypress
+          static-args: |
+            repoName=${{ github.event.repository.name }}
+            pullRequestNumber=${{ github.event.issue.number }}
+            commentId=${{ github.event.comment.id }}

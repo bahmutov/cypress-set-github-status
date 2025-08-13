@@ -18,6 +18,7 @@ module.exports = defineConfig({
       const commit = process.env.COMMIT_SHA || process.env.GITHUB_SHA
       const token = process.env.GITHUB_TOKEN || process.env.PERSONAL_GH_TOKEN
       const commonStatus = process.env.COMMON_STATUS || 'Cypress E2E tests'
+
       require('./src')(on, config, {
         // let's take this repo
         owner: 'bahmutov',

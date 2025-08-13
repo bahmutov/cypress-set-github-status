@@ -1,0 +1,19 @@
+# You can trigger this workflow either manually
+# or via "slash-command-dispatch" and the "/cypress" PR comment
+# https://glebbahmutov.com/blog/cypress-slash-command/
+name: cypress-command
+
+on:
+  repository_dispatch:
+    types: [cypress-command]
+
+jobs:
+  tests:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Print inputs 🖨️
+        run: |
+          echo off
+          echo 'repoName ${{ toJson(github.event.client_payload.repoName) }}'
+          echo 'pullRequestNumber ${{ toJson(github.event.client_payload.pullRequestNumber) }}'
+          echo 'commentId ${{ toJson(github.event.client_payload.commentId) }}'
