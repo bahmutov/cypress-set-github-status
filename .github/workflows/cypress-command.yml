@@ -15,6 +15,6 @@ jobs:
         run: |
           echo off
           echo '${{ toJson(github.event) }}'
-          echo 'repoName ${{ toJson(github.event.client_payload.repoName) }}'
-          echo 'pullRequestNumber ${{ toJson(github.event.client_payload.pullRequestNumber) }}'
-          echo 'commentId ${{ toJson(github.event.client_payload.commentId) }}'
+          echo 'repoName ${{ toJson(github.event.client_payload.slash_command.args.named.repoName) }}'
+          echo 'pullRequestNumber ${{ toJson(github.event.client_payload.slash_command.args.named.pullRequestNumber) }}'
+          echo 'commentId ${{ toJson(github.event.client_payload.slash_command.args.named.commentId) }}'
