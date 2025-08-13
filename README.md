@@ -1,4 +1,4 @@
-# cypress-set-github-status ![cypress version](https://img.shields.io/badge/cypress-11.0.1-brightgreen) [![ci](https://github.com/bahmutov/cypress-set-github-status/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/bahmutov/cypress-set-github-status/actions/workflows/ci.yml)
+# cypress-set-github-status ![cypress version](https://img.shields.io/badge/cypress-13.0.0-brightgreen) [![ci](https://github.com/bahmutov/cypress-set-github-status/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/bahmutov/cypress-set-github-status/actions/workflows/ci.yml)
 
 > A little Cypress plugin for setting GitHub commit status
 
