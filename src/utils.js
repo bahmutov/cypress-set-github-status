@@ -263,11 +263,81 @@ async function setCommonStatus(context, options, envOptions) {
   }
 }
 
+async function addOrUpdateComment(options, envOptions) {
+  // create github client using env options
+  if (options.token) {
+    console.error('you have accidentally included the token in the options')
+    console.error('please use the second environment options object instead')
+    delete options.token
+  }
+
+  if (!options.comment) {
+    throw new Error('options.comment is required')
+  }
+  if (!options.text) {
+    throw new Error('options.text is required')
+  }
+
+  console.log(
+    'Adding or updating comment %s/%s #%d',
+    options.owner,
+    options.repo,
+    options.comment,
+  )
+  // Here you would add the logic to interact with the GitHub API
+  // to add or update the comment with ID options.comment
+  // Note: the comment must exist
+  const url = `https://api.github.com/repos/${options.owner}/${options.repo}/issues/comments/${options.comment}`
+  debug('comment url: %s', url)
+
+  try {
+    // @ts-ignore
+    const res = await got.get(url, {
+      headers: {
+        authorization: `Bearer ${envOptions.token}`,
+      },
+    })
+    const comment = JSON.parse(res.body)
+    // debug('existing comment: %o', comment)
+    debug('existing comment body\n%s', comment.body)
+
+    if (comment.body.includes(options.text)) {
+      debug('comment already contains the text, nothing to do')
+      return 'nothing to do'
+    }
+
+    const newBody = `${comment.body}\n${options.text}`
+
+    debug('updating comment body to\n%s', newBody)
+
+    try {
+      // @ts-ignore
+      await got.patch(url, {
+        headers: {
+          authorization: `Bearer ${envOptions.token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          body: newBody,
+        }),
+      })
+      return 'comment updated'
+    } catch (error) {
+      console.error('Error updating comment:', error)
+      throw error
+    }
+  } catch (error) {
+    console.error('Error adding or updating comment:', error)
+    throw error
+  }
+}
+
 module.exports = {
   setGitHubCommitStatus,
   getPullRequestBody,
   getTestsToRun,
   setCommonStatus,
+  addOrUpdateComment,
   getPullRequestNumber,
 }
 
