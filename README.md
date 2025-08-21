@@ -100,6 +100,19 @@ $ npx set-gh-status ... --outcome ${{ steps.tests.outcome }} ...
 
 TODO: document this script
 
+### add-to-comment
+
+See [bin/add-to-comment.js](./bin/add-to-comment.js). Allows you to easily append new text to the comment (or do nothing if that text is already there)
+
+```
+$ npx add-to-comment \
+  --owner "username" --repo "name" \
+  --comment <comment-id> \
+  --text "New line of text"
+```
+
+If the existing comment "comment-id" already has the text included in the comment body, nothing is done. Otherwise the new text is added at the end of the comment body (separated by a new line)
+
 ## commonStatus
 
 If you have multiple parallel test runners, it might be necessary to create a single "common" status check with some constant context text to functions as the branch's required status. In this case, before starting the parallel test jobs set the status check using the bin `set-gh-status` script.
