@@ -1,7 +1,11 @@
 /// <reference types="cypress" />
 // @ts-check
 const debug = require('debug')('cypress-set-github-status')
-const { setGitHubCommitStatus, setCommonStatus } = require('./utils')
+const {
+  setGitHubCommitStatus,
+  setCommonStatus,
+  addOrUpdateComment,
+} = require('./utils')
 const pluralize = require('pluralize')
 
 function getContext() {
@@ -49,64 +53,93 @@ function registerPlugin(on, config, options = {}) {
   const testCommit =
     options.commit || config.env.testCommit || process.env.TEST_COMMIT
 
-  if (testCommit && options.owner && options.repo) {
-    const owner = options.owner
-    const repo = options.repo
+  const commentId =
+    options.comment || config.env.commentId || process.env.COMMENT_ID
+  debug('test commit %s comment id %s', testCommit, commentId)
 
-    console.log('after finishing the test run will report the results')
-    console.log('as a status check %s/%s commit %s', owner, repo, testCommit)
+  if (options.owner && options.repo) {
+    if (testCommit) {
+      debug('have the commit %s', testCommit)
 
-    const envOptions = {
-      token: options.token,
-    }
-    const context = getContext()
-    debug('context "%s"', context)
+      const owner = options.owner
+      const repo = options.repo
 
-    on('before:run', async (runResults) => {
-      // put the target repo information into the options
+      console.log('after finishing the test run will report the results')
+      console.log('as a status check %s/%s commit %s', owner, repo, testCommit)
 
-      const ghOptions = {
-        owner,
-        repo,
-        commit: testCommit,
-        status: 'pending',
-        description: 'Tests running',
-        context,
-        targetUrl: process.env.CIRCLE_BUILD_URL,
+      const envOptions = {
+        token: options.token,
       }
+      const context = getContext()
+      debug('context "%s"', context)
 
-      await setGitHubCommitStatus(ghOptions, envOptions)
-    })
+      on('before:run', async (runResults) => {
+        // put the target repo information into the options
 
-    on('after:run', async (runResults) => {
-      const status = runResults.totalFailed > 0 ? 'failure' : 'success'
-      const description = `${pluralize(
-        'spec',
-        runResults.runs.length,
-        true,
-      )}: ${runResults.totalPassed} passed, ${runResults.totalFailed} failed, ${
-        runResults.totalPending + runResults.totalSkipped
-      } other tests`
-      const targetUrl = runResults.runUrl || process.env.CIRCLE_BUILD_URL
-
-      const commitOption = {
-        owner,
-        repo,
-        commit: testCommit,
-        status,
-        description,
-        context,
-        targetUrl,
-      }
-      await setGitHubCommitStatus(commitOption, envOptions)
-
-      if (options.commonStatus) {
-        if (typeof options.commonStatus !== 'string') {
-          throw new Error(`Expected commonStatus to be a string`)
+        const ghOptions = {
+          owner,
+          repo,
+          commit: testCommit,
+          status: 'pending',
+          description: 'Tests running',
+          context,
+          targetUrl: process.env.CIRCLE_BUILD_URL,
         }
-        await setCommonStatus(options.commonStatus, commitOption, envOptions)
-      }
-    })
+
+        await setGitHubCommitStatus(ghOptions, envOptions)
+
+        if (commentId) {
+          if (runResults.runUrl) {
+            // add a comment with the link to the test run
+            const commentOptions = {
+              owner,
+              repo,
+              comment: Number(commentId),
+              text: `Cypress test run at ${runResults.runUrl}`,
+            }
+            const result = await addOrUpdateComment(commentOptions, envOptions)
+            debug('addOrUpdateComment result %o', result)
+            if (result === 'comment updated') {
+              console.log(
+                'Updated existing comment with ID %d, added link to the test run %s',
+                commentOptions.comment,
+                runResults.runUrl,
+              )
+            }
+          }
+        }
+      })
+
+      on('after:run', async (runResults) => {
+        const status = runResults.totalFailed > 0 ? 'failure' : 'success'
+        const description = `${pluralize(
+          'spec',
+          runResults.runs.length,
+          true,
+        )}: ${runResults.totalPassed} passed, ${runResults.totalFailed} failed, ${
+          runResults.totalPending + runResults.totalSkipped
+        } other tests`
+        const targetUrl = runResults.runUrl || process.env.CIRCLE_BUILD_URL
+
+        const commitOption = {
+          owner,
+          repo,
+          commit: testCommit,
+          status,
+          description,
+          context,
+          targetUrl,
+        }
+        await setGitHubCommitStatus(commitOption, envOptions)
+
+        if (options.commonStatus) {
+          if (typeof options.commonStatus !== 'string') {
+            throw new Error(`Expected commonStatus to be a string`)
+          }
+          await setCommonStatus(options.commonStatus, commitOption, envOptions)
+        }
+      })
+    }
   }
 }
 
