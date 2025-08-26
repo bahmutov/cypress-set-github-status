@@ -110,11 +110,25 @@ function registerPlugin(on, config, options = {}) {
         }
       })
 
-      on('after:spec', (spec, results) => {
+      on('after:spec', async (spec, results) => {
         debug('spec finished')
         debug(spec)
         debug('results')
         debug(results)
+
+        if (commentId) {
+          // maybe there are failed tests that we need to report
+          if (results.stats.failures > 0) {
+            const text = `🚨 spec ${spec.relative} has ${results.stats.failures} failed ${pluralize('test', results.stats.failures, true)}`
+            const commentOptions = {
+              owner,
+              repo,
+              comment: Number(commentId),
+              text,
+            }
+            await addOrUpdateComment(commentOptions, envOptions)
+          }
+        }
       })
 
       on('after:run', async (runResults) => {
