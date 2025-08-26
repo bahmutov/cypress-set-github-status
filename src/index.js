@@ -110,6 +110,13 @@ function registerPlugin(on, config, options = {}) {
         }
       })
 
+      on('after:spec', (spec, results) => {
+        debug('spec finished')
+        debug(spec)
+        debug('results')
+        debug(results)
+      })
+
       on('after:run', async (runResults) => {
         const status = runResults.totalFailed > 0 ? 'failure' : 'success'
         const description = `${pluralize(
