@@ -119,7 +119,13 @@ function registerPlugin(on, config, options = {}) {
         if (commentId) {
           // maybe there are failed tests that we need to report
           if (results.stats.failures > 0) {
-            const text = `🚨 spec ${spec.relative} has ${results.stats.failures} failed ${pluralize('test', results.stats.failures, true)}`
+            // collect the full titles of the failed tests
+            const failedTestTitles = results.tests
+              .filter((test) => test.state === 'failed')
+              .map((test) => test.title.join(' / '))
+            const text =
+              `🚨 spec ${spec.relative} has ${results.stats.failures} failed ${pluralize('test', results.stats.failures, false)}` +
+              `:\n\n${failedTestTitles.map((t) => `- ${t}`).join('\n')}`
             const commentOptions = {
               owner,
               repo,
