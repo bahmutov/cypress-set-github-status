@@ -124,8 +124,8 @@ function registerPlugin(on, config, options = {}) {
               .filter((test) => test.state === 'failed')
               .map((test) => test.title.join(' / '))
             const text =
-              `🚨 spec ${spec.relative} has ${results.stats.failures} failed ${pluralize('test', results.stats.failures, false)}` +
-              `:\n\n${failedTestTitles.map((t) => `- ${t}`).join('\n')}`
+              `🚨 spec ${spec.relative} has ${results.stats.failures} failed ${pluralize('test', results.stats.failures, false)}:\n\n` +
+              `${failedTestTitles.map((t) => `- ${t}`).join('\n')}\n\n`
             const commentOptions = {
               owner,
               repo,
