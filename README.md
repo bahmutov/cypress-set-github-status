@@ -175,6 +175,26 @@ You can add the machine index (starts with zero) and the total number of machine
 MACHINES_INDEX=1 MACHINES_TOTAL=5 ...
 ```
 
+## comment
+
+You can pass the comment id to add new test result messages.
+
+```js
+const token = process.env.GITHUB_TOKEN
+const comment = process.env.COMMENT_ID
+if (token && comment) {
+  console.log('Will write test results into the comment with id %s', comment)
+  require('cypress-set-github-status')(on, config, {
+    owner: '...',
+    repo: '...',
+    token,
+    comment,
+  })
+}
+```
+
+This plugin will write the Cypress Dashboard run URL (if recording) plus any failed test names.
+
 ## Debugging
 
 This plugin uses [debug](https://github.com/debug-js/debug#readme) module to output verbose logs. You can turn the logs on by running Cypress with `DEBUG=cypress-set-github-status` environment variable.
