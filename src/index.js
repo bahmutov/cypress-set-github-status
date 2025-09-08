@@ -165,6 +165,30 @@ function registerPlugin(on, config, options = {}) {
           }
           await setCommonStatus(options.commonStatus, commitOption, envOptions)
         }
+
+        if (commentId) {
+          debug(
+            'posting the final test results message to the commit %s',
+            commentId,
+          )
+          const status = runResults.totalFailed > 0 ? 'failure' : 'success'
+          const description = `${pluralize(
+            'spec',
+            runResults.runs.length,
+            true,
+          )}: ${runResults.totalPassed} passed, ${runResults.totalFailed} failed, ${
+            runResults.totalPending + runResults.totalSkipped
+          } other tests`
+
+          const text = `The test run has finished with status **${status}**: ${description}\n\n`
+          const commentOptions = {
+            owner,
+            repo,
+            comment: Number(commentId),
+            text,
+          }
+          await addOrUpdateComment(commentOptions, envOptions)
+        }
       })
     }
   }
