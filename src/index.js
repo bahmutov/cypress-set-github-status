@@ -9,13 +9,15 @@ const {
 } = require('./utils')
 const pluralize = require('pluralize')
 
-function getContext() {
-  let context = process.env.COMMIT_CONTEXT || 'Cypress tests'
+function getMachine() {
   if (process.env.CIRCLE_NODE_INDEX && process.env.CIRCLE_NODE_TOTAL) {
     // index starts with 0
     const machineIndex = Number(process.env.CIRCLE_NODE_INDEX) + 1
     const totalMachines = Number(process.env.CIRCLE_NODE_TOTAL)
-    context += ` (machine ${machineIndex}/${totalMachines})`
+    return {
+      machineIndex,
+      totalMachines,
+    }
   } else if (
     'MACHINES_TOTAL' in process.env &&
     'MACHINES_INDEX' in process.env
@@ -24,6 +26,19 @@ function getContext() {
     // index starts with zero
     const machineIndex = Number(process.env.MACHINES_INDEX) + 1
     const totalMachines = Number(process.env.MACHINES_TOTAL)
+    return {
+      machineIndex,
+      totalMachines,
+    }
+  }
+}
+
+function getContext() {
+  let context = process.env.COMMIT_CONTEXT || 'Cypress tests'
+
+  const machines = getMachine()
+  if (machines) {
+    const { machineIndex, totalMachines } = machines
     context += ` (machine ${machineIndex}/${totalMachines})`
   }
 
@@ -188,7 +203,12 @@ function registerPlugin(on, config, options = {}) {
           runResults.totalPending + runResults.totalSkipped
         } other tests`
 
-        const text = `The test run has finished with status **${status}**: ${description}\n\n`
+        const machines = getMachine()
+        const textStart = machines
+          ? `machine ${machines.machineIndex}/${machines.totalMachines}: `
+          : ''
+
+        const text = `${textStart}The test run has finished with status **${status}**: ${description}\n\n`
         const commentOptions = {
           owner,
           repo,
