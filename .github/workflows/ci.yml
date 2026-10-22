@@ -66,6 +66,6 @@ jobs:
         # https://github.com/cycjimmy/semantic-release-action
         uses: cycjimmy/semantic-release-action@v8
         with:
-          branch: main
+          branches: main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
