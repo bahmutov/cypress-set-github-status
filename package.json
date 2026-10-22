@@ -30,10 +30,10 @@
   },
   "homepage": "https://github.com/bahmutov/cypress-set-github-status#readme",
   "devDependencies": {
-    "cypress": "^16.2.0",
-    "@bahmutov/cy-grep": "^3.0.5",
-    "prettier": "^3.0.0",
-    "semantic-release": "^25.0.9"
+    "cypress": "16.2.0",
+    "@bahmutov/cy-grep": "3.0.5",
+    "prettier": "3.9.10",
+    "semantic-release": "25.0.9"
   },
   "dependencies": {
     "arg": "^5.0.1",
