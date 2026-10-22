@@ -12,7 +12,7 @@ module.exports = defineConfig({
     // We've imported your old cypress plugins here.
     // You may want to clean this up later by importing these.
     setupNodeEvents(on, config) {
-      // include this plugin before cypress-grep
+      // include this plugin before cy-grep
       // so if we find the test tags in the pull request body
       // we can grep for them by setting the grep config
       const commit = process.env.COMMIT_SHA || process.env.GITHUB_SHA
@@ -30,10 +30,10 @@ module.exports = defineConfig({
         commonStatus,
       })
 
-      // https://github.com/bahmutov/cypress-grep
-      require('cypress-grep/src/plugin')(config)
+      // https://github.com/bahmutov/cy-grep
+      require('@bahmutov/cy-grep/src/plugin')(config)
 
-      // cypress-grep could modify the config (the list of spec files)
+      // cy-grep could modify the config (the list of spec files)
       // thus it is important to return the modified config to Cypress
       return config
     },

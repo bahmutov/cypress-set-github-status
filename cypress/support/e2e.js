@@ -1,5 +1,5 @@
-/// <reference types="Cypress" />
+/// <reference types="cypress" />
 
-// load and register the grep feature
-// https://github.com/bahmutov/cypress-grep
-require('cypress-grep')()
+// load and register the cy-grep feature
+// https://github.com/bahmutov/cy-grep
+require('@bahmutov/cy-grep')()
