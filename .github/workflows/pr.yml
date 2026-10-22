@@ -65,12 +65,3 @@ jobs:
           MACHINES_INDEX: 2
           MACHINES_TOTAL: 5
           DEBUG: cypress-set-github-status
-
-      - name: Semantic Release 🚀
-        if: github.ref == 'refs/heads/main'
-        uses: cycjimmy/semantic-release-action@v4
-        with:
-          branch: main
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

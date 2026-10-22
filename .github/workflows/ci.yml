@@ -6,7 +6,26 @@ on:
 jobs:
   test:
     runs-on: ubuntu-24.04
+
+    permissions:
+      # allow the release step to comment on
+      # issues, pull requests, and write to the repo
+      contents: write
+      issues: write
+      pull-requests: write
+      # Required for OIDC to let NPM registry know
+      # that this workflow is trusted
+      id-token: write
+
     steps:
+      # important: the default Node version is v18
+      # which gives us an auth error trying to release
+      # so install v24 explicitly
+      - name: Setup Node.js v24 🟢
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
       - name: Checkout 🛎
         uses: actions/checkout@v7
 
@@ -44,9 +63,9 @@ jobs:
 
       - name: Semantic Release 🚀
         if: github.ref == 'refs/heads/main'
-        uses: cycjimmy/semantic-release-action@v4
+        # https://github.com/cycjimmy/semantic-release-action
+        uses: cycjimmy/semantic-release-action@v8
         with:
           branch: main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
