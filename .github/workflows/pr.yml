@@ -30,7 +30,7 @@ jobs:
 
       - name: Install dependencies 📦
         # https://github.com/cypress-io/github-action
-        uses: cypress-io/github-action@v6
+        uses: cypress-io/github-action@v7.4.7
         with:
           runTests: false
 
@@ -46,7 +46,7 @@ jobs:
 
       - name: Run tests 🧪
         # https://github.com/cypress-io/github-action
-        uses: cypress-io/github-action@v6
+        uses: cypress-io/github-action@v7.4.7
         with:
           install: false
           env: 'pullRequest=${{ github.event.number }}'
