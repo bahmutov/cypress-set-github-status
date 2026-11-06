@@ -19,8 +19,14 @@ function findJsonComment(body, label) {
 
   const match = body.match(new RegExp(`<!-- ${label}\\s*([\\s\\S]*?)-->`))
   if (!match) {
-    throw new Error(`Label "${label}" not found`)
+    return {
+      label,
+      json: null,
+      start: -1,
+      end: -1,
+    }
   }
+
   return {
     label,
     json: JSON.parse(match[1]),
