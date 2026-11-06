@@ -1,5 +1,7 @@
 const got = require('got')
 const debug = require('debug')('cypress-set-github-status')
+const details = require('debug')('cypress-set-github-status:details')
+const { findJsonComment, replaceJsonComment } = require('./json-utils')
 
 /**
  * @typedef {Object} JsonCommentOptions
@@ -7,6 +9,10 @@ const debug = require('debug')('cypress-set-github-status')
  * @property {string} repo
  * @property {number} comment
  * @property {string} [token] DO NOT USE, pass it as the second argument instead
+ */
+
+/**
+ * @typedef {function(Object): (Object|Promise<Object>)} jsonUpdateCallback
  */
 
 /**
@@ -36,7 +42,7 @@ function setupJsonComment(options, token) {
 
   const authorization = `Bearer ${token}`
 
-  return async function getJsonComment() {
+  return async function getJsonComment(label) {
     try {
       // @ts-ignore
       const res = await got.get(url, {
@@ -45,9 +51,51 @@ function setupJsonComment(options, token) {
         },
       })
       const comment = JSON.parse(res.body)
-      console.log(comment)
       // debug('existing comment: %o', comment)
-      debug('existing comment body\n%s', comment.body)
+      // debug('existing comment body\n%s', comment.body)
+
+      /**
+       * Updates the JSON content of the comment with the given label.
+       * If there is no existing JSON with the given label, the argument
+       * will be undefined
+       *
+       * @param {jsonUpdateCallback} updateFn Function that receives the current JSON and returns the updated JSON
+       * @returns {Promise<void>}
+       */
+      async function updateJsonComment(updateFn) {
+        const found = findJsonComment(comment.body, label)
+
+        debug('looked for JSON for label %s: %o', label, {
+          start: found.start,
+          end: found.end,
+        })
+        details(found)
+
+        const updated = await updateFn(found.json)
+        if (updated === undefined) {
+          throw new Error('updateFn must return a value')
+        }
+        if (updated === null) {
+          throw new Error('updateFn must not return null')
+        }
+
+        debug('updated JSON for label %s', label)
+        details(updated)
+
+        const newBody = replaceJsonComment(comment.body, found, updated)
+        const body = JSON.stringify({ body: newBody })
+        await got.patch(url, {
+          headers: {
+            authorization,
+            'content-type': 'application/json',
+          },
+          body,
+        })
+        debug('comment %s updated successfully', label)
+        return updated
+      }
+
+      return updateJsonComment
     } catch (error) {
       console.error('Error updating comment:', error)
       throw error
@@ -59,15 +107,34 @@ module.exports = setupJsonComment
 
 // @ts-ignore
 if (!module.parent) {
-  const getJsonComment = setupJsonComment(
-    {
-      owner: 'bahmutov',
-      repo: 'cypress-set-github-status',
-      comment: 3184190647,
-    },
-    process.env.GITHUB_TOKEN || process.env.PERSONAL_GH_TOKEN,
-  )
-  getJsonComment().catch((err) => {
+  async function testJsonComment() {
+    const getJsonComment = setupJsonComment(
+      {
+        owner: 'bahmutov',
+        repo: 'cypress-set-github-status',
+        comment: 3184190647,
+      },
+      process.env.GITHUB_TOKEN || process.env.PERSONAL_GH_TOKEN,
+    )
+
+    const update = await getJsonComment('label123')
+    await update((json) => {
+      if (!json) {
+        return {
+          counter: 1,
+        }
+      }
+
+      if ('counter' in json) {
+        json.counter++
+      } else {
+        json.counter = 1
+      }
+      return json
+    })
+  }
+
+  testJsonComment().catch((err) => {
     console.error(err)
   })
 }

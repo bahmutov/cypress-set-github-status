@@ -35,4 +35,26 @@ function findJsonComment(body, label) {
   }
 }
 
-module.exports = { findJsonComment }
+/**
+ * @param {string} body The original comment body
+ * @param {JsonCommentResult} found The result from findJsonComment
+ * @param {object} newJson The new JSON object to replace the old one with
+ * @returns {string} The updated comment body with the replaced JSON
+ */
+function replaceJsonComment(body, found, newJson) {
+  const stringified = JSON.stringify(newJson, null, 2)
+
+  // if there is no found comment, append the new comment at the end
+  if (found.start === -1) {
+    return `${body}\n\n<!-- ${found.label}\n\n${stringified}\n\n-->`
+  }
+
+  // replace the existing JSON comment with the new one
+  return (
+    body.slice(0, found.start) +
+    `<!-- ${found.label}\n\n${stringified}\n\n-->` +
+    body.slice(found.end)
+  )
+}
+
+module.exports = { findJsonComment, replaceJsonComment }
