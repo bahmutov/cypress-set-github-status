@@ -16,7 +16,7 @@ jobs:
 
       - name: Slash Command Dispatch
         # https://github.com/peter-evans/slash-command-dispatch
-        uses: peter-evans/slash-command-dispatch@v4
+        uses: peter-evans/slash-command-dispatch@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           permission: none
