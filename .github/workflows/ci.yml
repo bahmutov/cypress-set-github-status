@@ -22,7 +22,7 @@ jobs:
       # which gives us an auth error trying to release
       # so install v24 explicitly
       - name: Setup Node.js v24 🟢
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: 24
 
